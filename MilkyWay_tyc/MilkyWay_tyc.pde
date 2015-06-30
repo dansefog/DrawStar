@@ -1,13 +1,14 @@
 //ティコ星表をもとに天の川を書くプログラム
 int LENGTH;
 String[][] csv;
-float x,y,alpha,r,g,b,size,keido,ido;
+float x,y,alpha,Vmag,r,g,b,size,keido,ido;
 int Xarea,Yarea,XWidth = 720*2,YHeight=360*2,gridWidth = 2;
 float[][] alphaMap = new float[XWidth][YHeight];
 double count = 0;
 int DrawStarRate = 1;  //何割の星を表示させるか（デバッグ用）
 //等級で透過度を決める際の係数
-float alphaBase = 255 / (pow(2.512,10));
+float alphaBase = 255 / (pow(2.512,9.5));  //何等星まで見えることにするか（今は10等まで）
+boolean FullDraw = true;  //星図全体を描画するか
 
 void setup(){
   size(XWidth, YHeight);
@@ -50,18 +51,27 @@ void draw(){
     try{
       ido = Float.parseFloat(csv[i][2]);
       keido = Float.parseFloat(csv[i][1]);
+      //天の川付近かを判定
       boolean isMilkeyWay = GCCheck(ido,keido);
-    if(isMilkeyWay == true){
+      if(FullDraw == true || isMilkeyWay == true){
         alpha = Float.parseFloat(csv[i][0]);
         y = (YHeight/2) + ((YHeight/180) * ido) ;
         x = ((XWidth/360) * keido) ;
-        alpha = 255 - (pow(2.512,alpha)) * alphaBase;
-        //対応する座標の非透過率を加算（星が重なると明るさも増加）
-        //alphaMap[(int)(x)][(int)(y)] +=  (255 - (pow(2.512,alpha) * alphaBase));
-        fill(255,255,255,alpha);
-        ellipse(x,y,1,1);
-        count++;
-        if(count % 10000 == 0){println((int)count);}
+        //目に見えない星は天の川部分のみ描画
+        if((isMilkeyWay == true) || (alpha < 8)){
+          Vmag = 255 - (pow(2.512,alpha)) * alphaBase;
+          //対応する座標の非透過率を加算（星が重なると明るさも増加）
+          //alphaMap[(int)(x)][(int)(y)] +=  Vmag;
+          if(alpha < 1.5){
+            //alpha等級以下の明るい星を強調表示
+            g =0;b=0;size = 5;
+          }
+          else{g=255;b=255;size = 1.3;}
+          fill(255,g,b,Vmag);
+          ellipse(x,y,size,size);
+          count++;
+          if(count % 10000 == 0){println((int)count);}
+        }
       }
     }
     catch(Exception e){
@@ -114,7 +124,7 @@ boolean GCCheck(float ido, float keido){
   //ベクトル成分から銀緯を計算
   float Gido = degrees((Gz/sqrt(Gx * Gx + Gy * Gy)));
   //緯度が閾値以下なら、天の川付近（所属）の星と判定
-  if(abs(Gido) <= 30){answer = true;}
+  if(abs(Gido) <= 25){answer = true;}
   else{answer = false;}
   
   return answer;
