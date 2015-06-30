@@ -7,7 +7,7 @@ float[][] alphaMap = new float[XWidth][YHeight];
 double count = 0;
 int DrawStarRate = 1;  //何割の星を表示させるか（デバッグ用）
 //等級で透過度を決める際の係数
-float alphaBase = 255 / (pow(2.512,9.5));  //何等星まで見えることにするか（今は10等まで）
+float alphaBase = 255 / (pow(2.512,9.4));  //何等星まで見えることにするか（今は9.4まで）
 boolean FullDraw = true;  //星図全体を描画するか
 
 void setup(){
